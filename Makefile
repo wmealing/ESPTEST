@@ -1,7 +1,8 @@
-PYTHON   ?= python3
-PIP      ?= $(PYTHON) -m pip
-MPREMOTE  = $(PYTHON) -m mpremote
-ESPTOOL   = $(PYTHON) -m esptool
+VENV     = .venv
+PYTHON  ?= python3
+PIP      = $(VENV)/bin/pip
+MPREMOTE = $(VENV)/bin/mpremote
+ESPTOOL  = $(VENV)/bin/esptool.py
 
 # Auto-detect the ESP32 serial port (macOS: cu.usbserial/usbmodem, Linux: ttyUSB/ttyACM)
 PORT ?= $(shell ls /dev/cu.usbserial-* /dev/cu.SLAB_USBtoUART /dev/cu.usbmodem* \
@@ -19,10 +20,14 @@ FIRMWARE     ?= esp32-micropython.bin
 
 all: deploy
 
-install:
+# Create the venv (once); used as a prerequisite by install
+$(VENV)/bin/activate:
+	$(PYTHON) -m venv $(VENV)
+
+install: $(VENV)/bin/activate
 	$(PIP) install --upgrade mpremote esptool
 
-# Full first-time flow: install tools, download firmware, flash it
+# Full first-time flow: create venv, install tools, download firmware, flash it
 setup: install download-firmware erase-flash flash-firmware
 	@echo ""
 	@echo "MicroPython is now installed. Run 'make deploy' to copy your code."
@@ -78,3 +83,4 @@ clean:
 	find . -name '*.pyc' -delete
 	find . -name '__pycache__' -delete
 	rm -f $(FIRMWARE)
+	rm -rf $(VENV)

@@ -18,10 +18,13 @@ The BME280 I2C address defaults to `0x77` (PiicoDev default).
 Install tools, flash MicroPython, and deploy code in one go:
 
 ```sh
-make install   # install mpremote and esptool (Python tools)
+make install   # create .venv and install mpremote + esptool into it
 make setup     # download MicroPython firmware, erase flash, flash firmware
 make deploy    # copy bme280.py + main.py to the board and reboot
 ```
+
+All Python tools run inside a local `.venv` — nothing is installed system-wide.
+`make clean` removes it along with the downloaded firmware.
 
 Then open the serial console to see live readings:
 
