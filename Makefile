@@ -4,14 +4,14 @@ PIP      = $(VENV)/bin/pip
 MPREMOTE = $(VENV)/bin/mpremote
 ESPTOOL  = $(VENV)/bin/esptool.py
 
-# Auto-detect the ESP32 serial port (macOS: cu.usbserial/usbmodem, Linux: ttyUSB/ttyACM)
+# Auto-detect the ESP32-C6 serial port (macOS: cu.usbserial/usbmodem, Linux: ttyUSB/ttyACM)
 PORT ?= $(shell ls /dev/cu.usbserial-* /dev/cu.SLAB_USBtoUART /dev/cu.usbmodem* \
                   /dev/ttyUSB* /dev/ttyACM* 2>/dev/null | head -1)
 
 # MicroPython firmware — override with: make flash-firmware FIRMWARE=your.bin
-# Latest releases: https://micropython.org/download/ESP32_GENERIC/
-FIRMWARE_URL ?= https://micropython.org/resources/firmware/ESP32_GENERIC-20241129-v1.24.1.bin
-FIRMWARE     ?= esp32-micropython.bin
+# Latest releases: https://micropython.org/download/ESP32_GENERIC_C6/
+FIRMWARE_URL ?= https://micropython.org/resources/firmware/ESP32_GENERIC_C6-20241129-v1.24.1.bin
+FIRMWARE     ?= esp32c6-micropython.bin
 
 .PHONY: all install setup flash-firmware erase-flash download-firmware \
         deploy repl reset ls clean check-port check-firmware
@@ -47,13 +47,13 @@ check-firmware:
 	fi
 
 erase-flash: check-port
-	@echo "Erasing ESP32 flash on $(PORT)..."
-	$(ESPTOOL) --chip esp32 --port $(PORT) erase_flash
+	@echo "Erasing ESP32-C6 flash on $(PORT)..."
+	$(ESPTOOL) --chip esp32c6 --port $(PORT) erase-flash
 
 flash-firmware: check-port check-firmware
 	@echo "Flashing MicroPython firmware from $(FIRMWARE) to $(PORT)..."
-	$(ESPTOOL) --chip esp32 --port $(PORT) --baud 460800 \
-		write_flash -z 0x1000 $(FIRMWARE)
+	$(ESPTOOL) --chip esp32c6 --port $(PORT) --baud 460800 \
+		write_flash -z 0x0 $(FIRMWARE)
 
 # ── Code deployment ───────────────────────────────────────────────────────────
 
@@ -73,7 +73,7 @@ ls: check-port
 
 check-port:
 	@if [ -z "$(PORT)" ]; then \
-		echo "ERROR: No ESP32 serial port found. Is the board plugged in?"; \
+		echo "ERROR: No ESP32-C6 serial port found. Is the board plugged in?"; \
 		echo "       Override with: make <target> PORT=/dev/cu.your-port"; \
 		exit 1; \
 	fi
